@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fa" dir="rtl">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} + ' | پی‌مستر'">پی‌مستر</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
+
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+
+<body>
+<nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top shadow-sm">
+    <div class="container-fluid">
+        <a class="navbar-brand d-flex align-items-center" th:href="@{/}">
+            <i class="bi bi-cash-stack me-2 fs-4"></i>
+            <span class="fw-bold">پی‌مستر</span>
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/dashboard}"
+                       th:classappend="${#httpServletRequest.requestURI == '/dashboard' || #httpServletRequest.requestURI == '/'} ? 'active'">
+                        <i class="bi bi-speedometer2 me-1"></i> داشبورد
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/customers}"
+                       th:classappend="${#httpServletRequest.requestURI.startsWith('/customers')} ? 'active'">
+                        <i class="bi bi-people me-1"></i> مشتریان
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/contracts}"
+                       th:classappend="${#httpServletRequest.requestURI.startsWith('/contracts')} ? 'active'">
+                        <i class="bi bi-file-earmark-text me-1"></i> قراردادها
+                    </a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                        <i class="bi bi-credit-card me-1"></i> اقساط
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" th:href="@{/installments/upcoming}">
+                            <i class="bi bi-clock text-warning me-2"></i> سررسید این هفته
+                        </a></li>
+                        <li><a class="dropdown-item" th:href="@{/installments/overdue}">
+                            <i class="bi bi-exclamation-triangle text-danger me-2"></i> اقساط معوق
+                        </a></li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/reports}">
+                        <i class="bi bi-bar-chart me-1"></i> گزارش‌ها
+                    </a>
+                </li>
+            </ul>
+
+            <div class="d-flex align-items-center">
+                <span class="text-light me-3" th:text="${@dateUtils.getTodayPersian()}"></span>
+                <a th:href="@{/customers/new}" class="btn btn-outline-light btn-sm me-2">
+                    <i class="bi bi-person-plus"></i>
+                </a>
+                <a th:href="@{/contracts/new}" class="btn btn-light btn-sm">
+                    <i class="bi bi-plus-lg me-1"></i> قرارداد جدید
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<aside th:fragment="sidebar" class="sidebar bg-dark text-white">
+    <div class="sidebar-header p-3 border-bottom border-secondary">
+        <h5 class="mb-0"><i class="bi bi-cash-stack me-2"></i>پی‌مستر</h5>
+    </div>
+    <nav class="sidebar-nav p-2">
+        <a th:href="@{/dashboard}" class="sidebar-link">
+            <i class="bi bi-speedometer2"></i> داشبورد
+        </a>
+        <a th:href="@{/customers}" class="sidebar-link">
+            <i class="bi bi-people"></i> مشتریان
+        </a>
+        <a th:href="@{/contracts}" class="sidebar-link">
+            <i class="bi bi-file-text"></i> قراردادها
+        </a>
+        <a th:href="@{/installments/overdue}" class="sidebar-link">
+            <i class="bi bi-exclamation-circle"></i> اقساط معوق
+        </a>
+        <a th:href="@{/reports}" class="sidebar-link">
+            <i class="bi bi-graph-up"></i> گزارش‌ها
+        </a>
+    </nav>
+</aside>
+
+<footer th:fragment="footer" class="footer bg-light py-3 mt-auto border-top">
+    <div class="container-fluid">
+        <div class="row align-items-center">
+            <div class="col-md-6 text-center text-md-start">
+                <span class="text-muted">
+                    <i class="bi bi-cash-stack text-primary me-1"></i>
+                    سیستم مدیریت اقساط پی‌مستر &copy; 1403
+                </span>
+            </div>
+            <div class="col-md-6 text-center text-md-end">
+                <span class="text-muted small">نسخه 1.0.0</span>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<div th:fragment="alerts">
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show m-3" role="alert"
+         th:attr="data-success-message=${successMessage}">
+        <i class="bi bi-check-circle me-2"></i>
+        <span th:text="${successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show m-3" role="alert"
+         th:attr="data-error-message=${errorMessage}">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${#fields.hasGlobalErrors()}">
+        <div th:each="err : ${#fields.globalErrors()}" class="alert alert-danger alert-dismissible fade show m-3" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            <span th:text="${err}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    </div>
+</div>
+
+<div th:fragment="scripts">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script th:src="@{/js/app.js}"></script>
+</div>
+
+</body>
+</html>

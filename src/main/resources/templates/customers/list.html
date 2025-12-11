@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fa" dir="rtl">
+<head th:replace="~{fragments/layout :: head('مشتریان')}"></head>
+<body class="bg-light">
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<main class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="mb-1"><i class="bi bi-people text-primary me-2"></i>مدیریت مشتریان</h4>
+            <p class="text-muted mb-0">
+                <span th:text="${totalItems}">0</span> مشتری
+            </p>
+        </div>
+        <a th:href="@{/customers/new}" class="btn btn-primary">
+            <i class="bi bi-person-plus me-1"></i> مشتری جدید
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form th:action="@{/customers}" method="get" class="row g-3">
+                <div class="col-md-8">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" name="keyword" class="form-control"
+                               placeholder="جستجو در نام، کد ملی یا موبایل..."
+                               th:value="${keyword}">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary flex-grow-1">
+                            <i class="bi bi-search me-1"></i> جستجو
+                        </button>
+                        <a th:href="@{/customers}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-lg"></i>
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                    <tr>
+                        <th style="width: 50px;">#</th>
+                        <th>نام و نام‌خانوادگی</th>
+                        <th>کد ملی</th>
+                        <th>موبایل</th>
+                        <th>وضعیت</th>
+                        <th>قراردادها</th>
+                        <th>تاریخ ثبت</th>
+                        <th style="width: 150px;">عملیات</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="customer, iter : ${customers}">
+                        <td th:text="${iter.index + 1 + (currentPage * 10)}"></td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-sm bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-2">
+                                    <i class="bi bi-person text-primary"></i>
+                                </div>
+                                <div>
+                                    <a th:href="@{/customers/view/{id}(id=${customer.id})}"
+                                       class="text-decoration-none fw-medium"
+                                       th:text="${customer.fullName}"></a>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="font-monospace" th:text="${customer.nationalCode}"></td>
+                        <td class="font-monospace" th:text="${customer.mobile}"></td>
+                        <td>
+                                <span class="badge"
+                                      th:classappend="'bg-' + ${customer.status.badgeClass}"
+                                      th:text="${customer.status.persianName}"></span>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary" th:text="${customer.activeContractsCount}"></span>
+                        </td>
+                        <td th:text="${dateUtils.toPersianDate(customer.createdAt.toLocalDate())}"></td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a th:href="@{/customers/view/{id}(id=${customer.id})}"
+                                   class="btn btn-outline-primary" title="مشاهده">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a th:href="@{/customers/edit/{id}(id=${customer.id})}"
+                                   class="btn btn-outline-warning" title="ویرایش">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <button type="button" class="btn btn-outline-danger"
+                                        title="حذف"
+                                        data-bs-toggle="modal"
+                                        th:data-bs-target="'#deleteModal' + ${customer.id}">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+
+                            <div class="modal fade" th:id="'deleteModal' + ${customer.id}" tabindex="-1">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header border-0">
+                                            <h5 class="modal-title text-danger">
+                                                <i class="bi bi-exclamation-triangle me-2"></i>حذف مشتری
+                                            </h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body text-center py-4">
+                                            <p class="mb-0">آیا از حذف مشتری <strong
+                                                    th:text="${customer.fullName}"></strong> اطمینان دارید؟</p>
+                                            <small class="text-muted">این عمل غیرقابل بازگشت است</small>
+                                        </div>
+                                        <div class="modal-footer border-0">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                                انصراف
+                                            </button>
+                                            <form th:action="@{/customers/delete/{id}(id=${customer.id})}" method="post"
+                                                  class="d-inline">
+                                                <button type="submit" class="btn btn-danger">
+                                                    <i class="bi bi-trash me-1"></i> حذف
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(customers)}">
+                        <td colspan="8" class="text-center py-5">
+                            <i class="bi bi-inbox fs-1 d-block mb-3 text-muted"></i>
+                            <p class="text-muted mb-3">مشتری‌ای یافت نشد</p>
+                            <a th:href="@{/customers/new}" class="btn btn-primary">
+                                <i class="bi bi-person-plus me-1"></i> ثبت اولین مشتری
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card-footer bg-white" th:if="${totalPages > 1}">
+            <nav>
+                <ul class="pagination pagination-sm justify-content-center mb-0">
+                    <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                        <a class="page-link" th:href="@{/customers(keyword=${keyword}, page=${currentPage - 1})}">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                    <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                        th:classappend="${i == currentPage} ? 'active'">
+                        <a class="page-link" th:href="@{/customers(keyword=${keyword}, page=${i})}"
+                           th:text="${i + 1}"></a>
+                    </li>
+                    <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+                        <a class="page-link" th:href="@{/customers(keyword=${keyword}, page=${currentPage + 1})}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+
+</body>
+</html>

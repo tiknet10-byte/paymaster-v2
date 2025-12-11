@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fa" dir="rtl">
+<head th:replace="~{fragments/layout :: head('خطا')}"></head>
+<body class="bg-light">
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 text-center">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body py-5">
+                    <i class="bi bi-exclamation-triangle text-danger" style="font-size: 4rem;"></i>
+                    <h3 class="mt-4 mb-3">خطایی رخ داد!</h3>
+                    <p class="text-muted" th:text="${errorMessage ?: 'متاسفانه مشکلی پیش آمده است. '}">متاسفانه مشکلی پیش آمده است.</p>
+                    <a th:href="@{/}" class="btn btn-primary mt-3">
+                        <i class="bi bi-house me-1"></i> بازگشت به داشبورد
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+
+</body>
+</html>

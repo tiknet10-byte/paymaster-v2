@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fa" dir="rtl">
+<head th:replace="~{fragments/layout :: head(${isEdit} ? 'ویرایش مشتری' : 'مشتری جدید')}"></head>
+<body class="bg-light">
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<main class="container-fluid py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a th:href="@{/}">داشبورد</a></li>
+            <li class="breadcrumb-item"><a th:href="@{/customers}">مشتریان</a></li>
+            <li class="breadcrumb-item active" th:text="${isEdit} ? 'ویرایش' : 'جدید'"></li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0">
+                        <i class="bi me-2"
+                           th:classappend="${isEdit} ? 'bi-pencil text-warning' : 'bi-person-plus text-primary'"></i>
+                        <span th:text="${isEdit} ? 'ویرایش اطلاعات مشتری' : 'ثبت مشتری جدید'"></span>
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <form th:action="@{/customers/save}" method="post" th:object="${customer}" class="needs-validation"
+                          novalidate>
+                        <input type="hidden" th:field="*{id}">
+
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <label class="form-label">نام و نام‌خانوادگی <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                    <input type="text" class="form-control" th:field="*{fullName}"
+                                           placeholder="مثال: علی محمدی"
+                                           required minlength="2" maxlength="100"
+                                           th:classappend="${#fields.hasErrors('fullName')} ? 'is-invalid'">
+                                </div>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('fullName')}"
+                                     th:errors="*{fullName}"></div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">کد ملی <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-card-text"></i></span>
+                                    <input type="text" class="form-control font-monospace" th:field="*{nationalCode}"
+                                           placeholder="0012345678"
+                                           required pattern="\d{10}" maxlength="10"
+                                           th:classappend="${#fields.hasErrors('nationalCode')} ? 'is-invalid'"
+                                           id="nationalCode">
+                                    <span class="input-group-text" id="nationalCodeStatus"></span>
+                                </div>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('nationalCode')}"
+                                     th:errors="*{nationalCode}"></div>
+                                <small class="text-muted">10 رقم بدون خط تیره</small>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">شماره موبایل <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-phone"></i></span>
+                                    <input type="text" class="form-control font-monospace" th:field="*{mobile}"
+                                           placeholder="09123456789"
+                                           required pattern="09\d{9}" maxlength="11"
+                                           th:classappend="${#fields.hasErrors('mobile')} ? 'is-invalid'"
+                                           id="mobile">
+                                </div>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('mobile')}"
+                                     th:errors="*{mobile}"></div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">تلفن ثابت</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-telephone"></i></span>
+                                    <input type="text" class="form-control font-monospace" th:field="*{phone}"
+                                           placeholder="02112345678"
+                                           maxlength="11">
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">ایمیل</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                                    <input type="email" class="form-control" th:field="*{email}"
+                                           placeholder="example@email.com"
+                                           th:classappend="${#fields.hasErrors('email')} ? 'is-invalid'">
+                                </div>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('email')}"
+                                     th:errors="*{email}"></div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">کد پستی</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-mailbox"></i></span>
+                                    <input type="text" class="form-control font-monospace" th:field="*{postalCode}"
+                                           placeholder="1234567890"
+                                           maxlength="10">
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">وضعیت</label>
+                                <select class="form-select" th:field="*{status}">
+                                    <option th:each="status : ${statuses}"
+                                            th:value="${status}"
+                                            th:text="${status.persianName}"></option>
+                                </select>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label">آدرس</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-geo-alt"></i></span>
+                                    <textarea class="form-control" th:field="*{address}"
+                                              rows="2" maxlength="500"
+                                              placeholder="آدرس کامل..."></textarea>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label">یادداشت</label>
+                                <textarea class="form-control" th:field="*{notes}"
+                                          rows="2" maxlength="1000"
+                                          placeholder="توضیحات اضافی..."></textarea>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4 pt-3 border-top">
+                            <a th:href="@{/customers}" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-lg me-1"></i> انصراف
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi me-1" th:classappend="${isEdit} ? 'bi-check-lg' : 'bi-plus-lg'"></i>
+                                <span th:text="${isEdit} ? 'ذخیره تغییرات' : 'ثبت مشتری'"></span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+
+<script>
+    // اعتبارسنجی کد ملی
+    document.getElementById('nationalCode')?.addEventListener('blur', function() {
+        const code = this.value;
+        const statusEl = document.getElementById('nationalCodeStatus');
+        // دریافت ID فعلی برای نادیده گرفتن در حالت ویرایش
+        const excludeId = document.querySelector('input[name="id"]')?.value;
+
+        if (code.length === 10) {
+            // ساخت کوئری استرینگ شامل excludeId
+            let url = '/api/check-national-code?nationalCode=' + code;
+            if (excludeId) {
+                url += '&excludeId=' + excludeId;
+            }
+
+            fetch(url)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.valid) {
+                        statusEl.innerHTML = '<i class="bi bi-check-lg text-success"></i>';
+                        this.classList.remove('is-invalid');
+                        this.classList.add('is-valid');
+                    } else {
+                        statusEl.innerHTML = '<i class="bi bi-x-lg text-danger"></i>';
+                        this.classList.remove('is-valid');
+                        this.classList.add('is-invalid');
+                    }
+                })
+                .catch(error => {
+                    // در صورت بروز خطای شبکه یا سرور
+                    statusEl.innerHTML = '<i class="bi bi-exclamation-triangle-fill text-warning"></i>';
+                    console.error('AJAX Error:', error);
+                });
+        } else {
+            // پاک کردن وضعیت در صورت طول نامناسب
+            statusEl.innerHTML = '';
+            this.classList.remove('is-valid', 'is-invalid');
+        }
+    });
+
+    // نکته: اعتبارسنجی موبایل (mobile) در فایل اصلی PayMaster.js تعریف شده است
+</script>
+
+</body>
+</html>

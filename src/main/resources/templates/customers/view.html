@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fa" dir="rtl">
+<head th:replace="~{fragments/layout :: head('مشخصات مشتری')}"></head>
+<body class="bg-light">
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<main class="container-fluid py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a th:href="@{/}">داشبورد</a></li>
+            <li class="breadcrumb-item"><a th:href="@{/customers}">مشتریان</a></li>
+            <li class="breadcrumb-item active" th:text="${customer.fullName}"></li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center py-4">
+                    <div class="avatar-lg bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                         style="width: 80px; height: 80px;">
+                        <i class="bi bi-person fs-1 text-primary"></i>
+                    </div>
+                    <h5 class="mb-1" th:text="${customer.fullName}"></h5>
+                    <p class="text-muted mb-2" th:text="${customer.nationalCode}"></p>
+                    <span class="badge"
+                          th:classappend="'bg-' + ${customer.status.badgeClass}"
+                          th:text="${customer.status.persianName}"></span>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span class="text-muted"><i class="bi bi-phone me-2"></i>موبایل</span>
+                        <span class="font-monospace" th:text="${customer.mobile}"></span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between" th:if="${customer.phone}">
+                        <span class="text-muted"><i class="bi bi-telephone me-2"></i>تلفن</span>
+                        <span class="font-monospace" th:text="${customer.phone}"></span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between" th:if="${customer.email}">
+                        <span class="text-muted"><i class="bi bi-envelope me-2"></i>ایمیل</span>
+                        <span th:text="${customer.email}"></span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span class="text-muted"><i class="bi bi-calendar me-2"></i>تاریخ ثبت</span>
+                        <span th:text="${dateUtils.toPersianDate(customer.createdAt.toLocalDate())}"></span>
+                    </li>
+                </ul>
+                <div class="card-footer bg-white">
+                    <div class="d-grid gap-2">
+                        <a th:href="@{/customers/edit/{id}(id=${customer.id})}" class="btn btn-outline-warning">
+                            <i class="bi bi-pencil me-1"></i> ویرایش
+                        </a>
+                        <a th:href="@{/contracts/new(customerId=${customer.id})}" class="btn btn-primary">
+                            <i class="bi bi-plus-lg me-1"></i> قرارداد جدید
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm mt-3" th:if="${customer.address}">
+                <div class="card-header bg-white">
+                    <i class="bi bi-geo-alt me-2 text-primary"></i>آدرس
+                </div>
+                <div class="card-body">
+                    <p class="mb-0" th:text="${customer.address}"></p>
+                    <small class="text-muted" th:if="${customer.postalCode}"
+                           th:text="'کد پستی: ' + ${customer.postalCode}"></small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">
+                            <i class="bi bi-file-earmark-text text-primary me-2"></i>
+                            قراردادها
+                        </h6>
+                        <span class="badge bg-primary" th:text="${#lists.size(contracts)}"></span>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                            <tr>
+                                <th>شماره قرارداد</th>
+                                <th>مبلغ کل</th>
+                                <th>تعداد اقساط</th>
+                                <th>وضعیت</th>
+                                <th>پیشرفت</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="contract : ${contracts}">
+                                <td>
+                                    <a th:href="@{/contracts/view/{id}(id=${contract.id})}"
+                                       class="text-decoration-none fw-medium"
+                                       th:text="${contract.contractNumber}"></a>
+                                </td>
+                                <td th:text="${#numbers.formatInteger(contract.totalAmount, 3, 'COMMA')} + ' ریال'"></td>
+                                <td th:text="${contract.paidInstallmentsCount} + '/' + ${contract.installmentCount}"></td>
+                                <td>
+                                        <span class="badge"
+                                              th:classappend="'bg-' + ${contract.status.badgeClass}"
+                                              th:text="${contract.status.persianName}"></span>
+                                </td>
+                                <td style="width: 150px;">
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar" role="progressbar"
+                                             th:style="'width: ' + ${contract.progressPercentage} + '%'"
+                                             th:classappend="${contract.progressPercentage == 100} ? 'bg-success' : 'bg-primary'"></div>
+                                    </div>
+                                    <small class="text-muted" th:text="${contract.progressPercentage} + '%'"></small>
+                                </td>
+                                <td>
+                                    <a th:href="@{/contracts/view/{id}(id=${contract.id})}"
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(contracts)}">
+                                <td colspan="6" class="text-center py-5">
+                                    <i class="bi bi-folder-x fs-1 d-block mb-3 text-muted"></i>
+                                    <p class="text-muted mb-3">این مشتری قراردادی ندارد</p>
+                                    <a th:href="@{/contracts/new(customerId=${customer.id})}" class="btn btn-primary">
+                                        <i class="bi bi-plus-lg me-1"></i> ایجاد قرارداد
+                                    </a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm mt-3" th:if="${! #lists.isEmpty(contracts)}">
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-4">
+                            <p class="text-muted mb-1 small">تعداد قراردادها</p>
+                            <h4 th:text="${#lists.size(contracts)}">0</h4>
+                        </div>
+                        <div class="col-md-4">
+                            <p class="text-muted mb-1 small">قراردادهای فعال</p>
+                            <h4 th:text="${customer.activeContractsCount}">0</h4>
+                        </div>
+                        <div class="col-md-4">
+                            <p class="text-muted mb-1 small">مجموع بدهی</p>
+                            <h4 class="text-danger" th:text="${#numbers.formatInteger(customer.totalDebt, 3, 'COMMA')}">
+                                0</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+
+</body>
+</html>

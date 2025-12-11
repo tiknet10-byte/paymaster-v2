@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fa" dir="rtl">
+<head th:replace="~{fragments/layout :: head('قرارداد جدید')}"></head>
+<body class="bg-light">
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<main class="container-fluid py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a th:href="@{/}">داشبورد</a></li>
+            <li class="breadcrumb-item"><a th:href="@{/contracts}">قراردادها</a></li>
+            <li class="breadcrumb-item active">قرارداد جدید</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <form th:action="@{/contracts/save}" method="post" id="contractForm">
+                <div class="row g-4">
+                    <div class="col-lg-6">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-header bg-white py-3">
+                                <h6 class="mb-0">
+                                    <i class="bi bi-person text-primary me-2"></i>
+                                    اطلاعات مشتری و قرارداد
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-4">
+                                    <label class="form-label">مشتری <span class="text-danger">*</span></label>
+                                    <select name="customerId" class="form-select form-select-lg" required
+                                            id="customerId">
+                                        <option value="">-- انتخاب مشتری --</option>
+                                        <option th:each="customer : ${customers}"
+                                                th:value="${customer.id}"
+                                                th:text="${customer.fullName} + ' (' + ${customer.nationalCode} + ')'"
+                                                th:selected="${customer.id == selectedCustomerId}"></option>
+                                    </select>
+                                    <div class="mt-2">
+                                        <a th:href="@{/customers/new}" class="text-decoration-none small">
+                                            <i class="bi bi-plus-circle me-1"></i> ثبت مشتری جدید
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="form-label">مبلغ اصلی (ریال) <span
+                                            class="text-danger">*</span></label>
+                                    <div class="input-group input-group-lg">
+                                        <span class="input-group-text"><i class="bi bi-cash"></i></span>
+                                        <input type="number" name="principalAmount" class="form-control"
+                                               id="principalAmount"
+                                               placeholder="مثال: 100000000"
+                                               min="1000000" step="1000000" required>
+                                        <span class="input-group-text">ریال</span>
+                                    </div>
+                                    <small class="text-muted">حداقل ۱,۰۰۰,۰۰۰ ریال</small>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="form-label">نرخ سود سالانه (درصد) <span
+                                            class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-percent"></i></span>
+                                        <input type="number" name="interestRate" class="form-control"
+                                               id="interestRate"
+                                               placeholder="مثال: 18"
+                                               min="0" max="100" step="0.5" value="18" required>
+                                        <span class="input-group-text">%</span>
+                                    </div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="form-label">تعداد اقساط <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-list-ol"></i></span>
+                                        <select name="installmentCount" class="form-select" id="installmentCount"
+                                                required>
+                                            <option value="">-- انتخاب کنید --</option>
+                                            <option value="3">۳ ماهه</option>
+                                            <option value="6">۶ ماهه</option>
+                                            <option value="12" selected>۱۲ ماهه</option>
+                                            <option value="18">۱۸ ماهه</option>
+                                            <option value="24">۲۴ ماهه</option>
+                                            <option value="36">۳۶ ماهه</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="form-label">تاریخ شروع <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-calendar"></i></span>
+                                        <input type="text" name="startDatePersian" class="form-control"
+                                               id="startDatePersian"
+                                               th:value="${todayPersian}"
+                                               placeholder="1403/09/20"
+                                               pattern="\d{4}/\d{2}/\d{2}" required>
+                                    </div>
+                                    <small class="text-muted">فرمت: ۱۴۰۳/۰۹/۲۰</small>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">نرخ جریمه تاخیر روزانه (درصد)</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-exclamation-triangle"></i></span>
+                                        <input type="number" name="penaltyRate" class="form-control"
+                                               value="0.5" min="0" max="5" step="0.1">
+                                        <span class="input-group-text">% روزانه</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-header bg-white py-3">
+                                <h6 class="mb-0">
+                                    <i class="bi bi-calculator text-success me-2"></i>
+                                    پیش‌نمایش محاسبات
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="bg-light rounded-3 p-4 mb-4">
+                                    <div class="row g-3">
+                                        <div class="col-6">
+                                            <p class="text-muted small mb-1">مبلغ اصلی</p>
+                                            <h5 class="mb-0" id="calcPrincipal">۰ ریال</h5>
+                                        </div>
+                                        <div class="col-6">
+                                            <p class="text-muted small mb-1">سود</p>
+                                            <h5 class="mb-0 text-warning" id="calcInterest">۰ ریال</h5>
+                                        </div>
+                                        <div class="col-12">
+                                            <hr class="my-2">
+                                        </div>
+                                        <div class="col-6">
+                                            <p class="text-muted small mb-1">مبلغ کل</p>
+                                            <h4 class="mb-0 text-primary" id="calcTotal">۰ ریال</h4>
+                                        </div>
+                                        <div class="col-6">
+                                            <p class="text-muted small mb-1">مبلغ هر قسط</p>
+                                            <h4 class="mb-0 text-success" id="calcInstallment">۰ ریال</h4>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <canvas id="pieChart" height="200"></canvas>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">توضیحات</label>
+                                    <textarea name="description" class="form-control" rows="3"
+                                              placeholder="توضیحات اختیاری..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <a th:href="@{/contracts}" class="btn btn-outline-secondary">
+                                        <i class="bi bi-x-lg me-1"></i> انصراف
+                                    </a>
+                                    <div>
+                                        <button type="button" class="btn btn-outline-primary me-2" id="btnCalculate">
+                                            <i class="bi bi-calculator me-1"></i> محاسبه مجدد
+                                        </button>
+                                        <button type="submit" class="btn btn-success btn-lg">
+                                            <i class="bi bi-check-lg me-1"></i> ثبت قرارداد
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+
+<script>
+    let pieChart = null;
+
+    function formatNumber(num) {
+        return new Intl.NumberFormat('fa-IR').format(num);
+    }
+
+    function calculateInstallments() {
+        const principal = parseInt(document.getElementById('principalAmount').value) || 0;
+        const rate = parseFloat(document.getElementById('interestRate').value) || 0;
+        const months = parseInt(document.getElementById('installmentCount').value) || 0;
+
+        if (principal > 0 && rate >= 0 && months > 0) {
+            // اصلاح: حذف فاصله اضافی در پارامترهای URL
+            fetch(`/api/calculate-installments?principal=${principal}&rate=${rate}&months=${months}`)
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('calcPrincipal').textContent = formatNumber(data.principal) + ' ریال';
+                    document.getElementById('calcInterest').textContent = formatNumber(data.interest) + ' ریال';
+                    document.getElementById('calcTotal').textContent = formatNumber(data.total) + ' ریال';
+                    document.getElementById('calcInstallment').textContent = formatNumber(data.installmentAmount) + ' ریال';
+
+                    updateChart(data.principal, data.interest);
+                });
+        }
+    }
+
+    function updateChart(principal, interest) {
+        const ctx = document.getElementById('pieChart').getContext('2d');
+
+        if (pieChart) {
+            pieChart.destroy();
+        }
+
+        pieChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['اصل سرمایه', 'سود'],
+                datasets: [{
+                    data: [principal, interest],
+                    backgroundColor: ['#3498db', '#f39c12'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: { family: 'Vazirmatn' }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Event Listeners
+    // در یک محیط توسعه واقعی، بهتر است از تابع debounce موجود در فایل اصلی (PayMaster.js) استفاده شود
+    document.getElementById('principalAmount').addEventListener('input', calculateInstallments);
+    document.getElementById('interestRate').addEventListener('input', calculateInstallments);
+    document.getElementById('installmentCount').addEventListener('change', calculateInstallments);
+    document.getElementById('btnCalculate').addEventListener('click', calculateInstallments);
+
+    // Initial calculation when DOM is ready
+    document.addEventListener('DOMContentLoaded', calculateInstallments);
+</script>
+
+</body>
+</html>

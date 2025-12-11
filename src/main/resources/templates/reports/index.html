@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fa" dir="rtl">
+<head th:replace="~{fragments/layout :: head('گزارش‌ها')}"></head>
+<body class="bg-light">
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<main class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="mb-0">
+            <i class="bi bi-bar-chart text-primary me-2"></i>گزارش‌ها و آمار
+        </h4>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center py-4">
+                <div class="card-body">
+                    <i class="bi bi-people fs-1 text-primary mb-3 d-block"></i>
+                    <h3 th:text="${stats.totalCustomers}">0</h3>
+                    <p class="text-muted mb-0">کل مشتریان</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center py-4">
+                <div class="card-body">
+                    <i class="bi bi-file-text fs-1 text-success mb-3 d-block"></i>
+                    <h3 th:text="${stats.activeContracts}">0</h3>
+                    <p class="text-muted mb-0">قراردادهای فعال</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center py-4">
+                <div class="card-body">
+                    <i class="bi bi-cash-stack fs-1 text-info mb-3 d-block"></i>
+                    <h3 th:text="${stats.totalReceivedFormatted}">0</h3>
+                    <p class="text-muted mb-0">وصول شده (ریال)</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center py-4">
+                <div class="card-body">
+                    <i class="bi bi-exclamation-triangle fs-1 text-danger mb-3 d-block"></i>
+                    <h3 class="text-danger" th:text="${stats.overdueInstallments}">0</h3>
+                    <p class="text-muted mb-0">اقساط معوق</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0">نمودار مطالبات</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="receivablesChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0">وضعیت وصول</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="collectionChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+
+<script th:inline="javascript">
+    // Receivables Chart
+    new Chart(document.getElementById('receivablesChart'), {
+        type: 'bar',
+        data: {
+            labels: ['کل مطالبات', 'وصول شده', 'معوق'],
+            datasets: [{
+                label: 'مبلغ (ریال)',
+                data: [
+                    [[${stats.totalReceivable}]],
+                    [[${stats.totalReceived}]],
+                    [[${stats.totalOverdue}]]
+                ],
+                backgroundColor: ['#3498db', '#2ecc71', '#e74c3c']
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+
+    // Collection Chart
+    new Chart(document.getElementById('collectionChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['وصول شده', 'باقیمانده'],
+            datasets: [{
+                data: [
+                    [[${stats.totalReceived}]],
+                    [[${stats.totalReceivable - stats.totalReceived}]]
+                ],
+                backgroundColor: ['#2ecc71', '#95a5a6']
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { font: { family: 'Vazirmatn' } }
+                }
+            }
+        }
+    });
+</script>
+
+</body>
+</html>

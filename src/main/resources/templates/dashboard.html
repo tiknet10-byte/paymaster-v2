@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fa" dir="rtl">
+<head th:replace="~{fragments/layout :: head('داشبورد')}"></head>
+<body class="bg-light">
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<main class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="mb-1"><i class="bi bi-speedometer2 text-primary me-2"></i>داشبورد</h4>
+            <p class="text-muted mb-0" th:text="'امروز: ' + ${stats.todayPersianDate}"></p>
+        </div>
+        <div>
+            <a th:href="@{/contracts/new}" class="btn btn-primary">
+                <i class="bi bi-plus-lg me-1"></i> قرارداد جدید
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted mb-1 small">کل مشتریان</p>
+                            <h3 class="mb-0" th:text="${stats.totalCustomers}">0</h3>
+                            <small class="text-success">
+                                <span th:text="${stats.activeCustomers}"></span> فعال
+                            </small>
+                        </div>
+                        <div class="bg-primary bg-opacity-10 rounded-3 p-3">
+                            <i class="bi bi-people text-primary fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0 pt-0">
+                    <a th:href="@{/customers}" class="text-decoration-none small">
+                        مشاهده همه <i class="bi bi-arrow-left"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted mb-1 small">قراردادهای فعال</p>
+                            <h3 class="mb-0" th:text="${stats.activeContracts}">0</h3>
+                            <small class="text-muted">
+                                از <span th:text="${stats.totalContracts}"></span> قرارداد
+                            </small>
+                        </div>
+                        <div class="bg-success bg-opacity-10 rounded-3 p-3">
+                            <i class="bi bi-file-earmark-text text-success fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0 pt-0">
+                    <a th:href="@{/contracts}" class="text-decoration-none small">
+                        مشاهده همه <i class="bi bi-arrow-left"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted mb-1 small">مجموع مطالبات</p>
+                            <h3 class="mb-0" th:text="${stats.totalReceivableFormatted}">0</h3>
+                            <small class="text-muted">ریال</small>
+                        </div>
+                        <div class="bg-info bg-opacity-10 rounded-3 p-3">
+                            <i class="bi bi-cash-coin text-info fs-4"></i>
+                        </div>
+                    </div>
+                    <div class="progress mt-3" style="height: 6px;">
+                        <div class="progress-bar bg-info" role="progressbar"
+                             th:style="'width: ' + ${stats.collectionPercentage} + '%'"></div>
+                    </div>
+                    <small class="text-muted" th:text="${stats.collectionPercentage} + '% وصول شده'"></small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100 border-start border-danger border-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted mb-1 small">اقساط معوق</p>
+                            <h3 class="mb-0 text-danger" th:text="${stats.overdueInstallments}">0</h3>
+                            <small class="text-danger" th:text="${stats.totalOverdueFormatted} + ' ریال'"></small>
+                        </div>
+                        <div class="bg-danger bg-opacity-10 rounded-3 p-3">
+                            <i class="bi bi-exclamation-triangle text-danger fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0 pt-0">
+                    <a th:href="@{/installments/overdue}" class="text-decoration-none small text-danger">
+                        مشاهده معوقات <i class="bi bi-arrow-left"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-0 py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">
+                            <i class="bi bi-clock text-warning me-2"></i>
+                            اقساط سررسید این هفته
+                        </h6>
+                        <span class="badge bg-warning" th:text="${#lists.size(upcomingInstallments)}">0</span>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                            <tr>
+                                <th>مشتری</th>
+                                <th>شماره قرارداد</th>
+                                <th>قسط</th>
+                                <th>مبلغ</th>
+                                <th>سررسید</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="inst : ${upcomingInstallments}">
+                                <td th:text="${inst.contract.customer.fullName}"></td>
+                                <td>
+                                    <a th:href="@{/contracts/view/{id}(id=${inst.contract.id})}"
+                                       th:text="${inst.contract.contractNumber}"></a>
+                                </td>
+                                <td th:text="${inst.installmentNumber} + '/' + ${inst.contract.installmentCount}"></td>
+                                <td th:text="${#numbers.formatInteger(inst.amount, 3, 'COMMA')} + ' ریال'"></td>
+                                <td th:text="${dateUtils.toPersianDate(inst.dueDate)}"></td>
+                                <td>
+                                    <form th:action="@{/installments/quick-pay/{id}(id=${inst.id})}" method="post"
+                                          class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-success">
+                                            <i class="bi bi-check-lg"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(upcomingInstallments)}">
+                                <td colspan="6" class="text-center text-muted py-4">
+                                    <i class="bi bi-check-circle fs-1 d-block mb-2 text-success"></i>
+                                    قسطی برای این هفته وجود ندارد
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-0 py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">
+                            <i class="bi bi-exclamation-triangle text-danger me-2"></i>
+                            اقساط معوق
+                        </h6>
+                        <span class="badge bg-danger" th:text="${#lists.size(overdueInstallments)}">0</span>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                            <tr>
+                                <th>مشتری</th>
+                                <th>مبلغ</th>
+                                <th>سررسید</th>
+                                <th>تاخیر</th>
+                                <th>جریمه</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="inst : ${overdueInstallments}" class="table-danger-subtle">
+                                <td th:text="${inst.contract.customer.fullName}"></td>
+                                <td th:text="${#numbers.formatInteger(inst.amount, 3, 'COMMA')}"></td>
+                                <td th:text="${dateUtils.toPersianDate(inst.dueDate)}"></td>
+                                <td>
+                                    <span class="badge bg-danger" th:text="${inst.delayDays} + ' روز'"></span>
+                                </td>
+                                <td class="text-danger"
+                                    th:text="${#numbers.formatInteger(inst.calculatePenalty(), 3, 'COMMA')}"></td>
+                                <td>
+                                    <a th:href="@{/contracts/view/{id}(id=${inst.contract.id})}"
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(overdueInstallments)}">
+                                <td colspan="6" class="text-center text-muted py-4">
+                                    <i class="bi bi-emoji-smile fs-1 d-block mb-2 text-success"></i>
+                                    قسط معوقی وجود ندارد
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="mb-3"><i class="bi bi-lightning text-warning me-2"></i>دسترسی سریع</h6>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a th:href="@{/customers/new}" class="btn btn-outline-primary">
+                            <i class="bi bi-person-plus me-1"></i> مشتری جدید
+                        </a>
+                        <a th:href="@{/contracts/new}" class="btn btn-outline-success">
+                            <i class="bi bi-file-plus me-1"></i> قرارداد جدید
+                        </a>
+                        <a th:href="@{/installments/overdue}" class="btn btn-outline-danger">
+                            <i class="bi bi-exclamation-circle me-1"></i> اقساط معوق
+                        </a>
+                        <a th:href="@{/reports}" class="btn btn-outline-info">
+                            <i class="bi bi-bar-chart me-1"></i> گزارش‌ها
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+
+</body>
+</html>
