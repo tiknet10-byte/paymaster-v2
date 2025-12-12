@@ -453,5 +453,5 @@ public class HomeController {
 
         return new CalculationResult(principal, interest, total, installment, months);
     }
-    // **تغییر کوچک مورد نیاز:** اف/** * Retrieves a single user profile from the database. * @param {Request} req The Express request object, including the user ID. * @param {Response} reses) { // ... لاجیک موجود } }
+    // **تغییر کوچک مورد نیاز:** Retrieves a single user profile from the database. * @param {Request} req The Express request object, including the user ID. * @param {Response} reses) { // ... لاجیک موجود } }
 }
